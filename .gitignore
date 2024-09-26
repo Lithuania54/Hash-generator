@@ -1,0 +1,5 @@
+# Ignore main.exe
+main.exe
+
+# Ignore the .vscode folder
+.vscode/
