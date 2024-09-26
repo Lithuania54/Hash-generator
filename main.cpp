@@ -2,16 +2,34 @@
 #include <string>
 using namespace std;
 
-unsigned int funkcija(const string& input) {
-    unsigned int hash = 0;
-    unsigned int prime = 31;
+string Hex(unsigned long long num) {
+    string galimiHex = "0123456789abcdef";
+    string result = "";
+
+    while (num > 0) {
+        result = galimiHex[num % 16] + result;
+        num /= 16;
+    }
+
+    return result;
+}
+
+string funkcija(const string& input) {
+    unsigned long long hash = 0;
+    unsigned long long prime = 31;
 
     for (char c : input) {
         hash = (hash * prime) + (c * (c + 7));
         hash += 12345;
     }
 
-    return hash;
+    string rezultHex = Hex(hash);
+
+    while (rezultHex.length() < 64) {
+        rezultHex = "0" + rezultHex;
+    }
+
+    return rezultHex;
 }
 
 int main() {
@@ -19,8 +37,8 @@ int main() {
     cout << "Stringas: ";
     getline(cin, input);
 
-    unsigned int reiksme = funkcija(input);
-    cout << "Hash: " << reiksme << endl;
+    string reiksme = funkcija(input);
+    cout << "Hash (64 symboliu hex): " << reiksme << endl;
 
     return 0;
 }
