@@ -3,43 +3,43 @@
 using namespace std;
 
 string Hex(unsigned long long num) {
-    string galimiHex = "0123456789abcdef";
-    string result = "";
+    const string hexGalimi = "0123456789abcdef";
+    string result;
 
     while (num > 0) {
-        int liekana = num & 15;
-        result = galimiHex[liekana] + result;
-        num = num >> 4;
-    }
+        result = hexGalimi[num & 15] + result;
+        num >>= 4;
+    };
 
     return result;
 }
 
-string funkcija(const string& input) {
+string hashFunkcija(const string& input) {
     unsigned long long hash = 0;
-    unsigned long long prime = 31;
+    const unsigned long long prime = 31;
 
     for (char c : input) {
-        hash = (hash * prime) + (c * (c + 7));
-        hash += 12345;
+        hash = hash * prime + c * (c + 7) + 12345;
     }
 
-    string rezultHex = Hex(hash);
+    string resultHex = Hex(hash);
 
-    while (rezultHex.length() < 64) {
-        rezultHex = "0" + rezultHex;
+    while (resultHex.length() < 64) {
+        for (char c : resultHex) {
+            hash = hash * prime + c * (c + 5) + 54321;
+        }
+        resultHex += Hex(hash);
     }
 
-    return rezultHex;
+    return resultHex.substr(0, 64);
 }
 
 int main() {
     string input;
-    cout << "Stringas: ";
+    cout << "Input: ";
     getline(cin, input);
 
-    string reiksme = funkcija(input);
-    cout << "Hash (64 symboliu hex): " << reiksme << endl;
+    cout << "Hash: " << hashFunkcija(input) << endl;
 
     return 0;
 }
