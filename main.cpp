@@ -7,8 +7,9 @@ string Hex(unsigned long long num) {
     string result = "";
 
     while (num > 0) {
-        result = galimiHex[num % 16] + result;
-        num /= 16;
+        int liekana = num & 15;
+        result = galimiHex[liekana] + result;
+        num = num >> 4;
     }
 
     return result;
