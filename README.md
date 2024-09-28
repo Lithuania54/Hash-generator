@@ -56,7 +56,9 @@
 | 256              | 0.1052                |
 | 512              | 0.23958               |
 
-Matome vidutinis laikas didėja tiesiškai. Priklausomybė tiesiška, kompleksiškumas O(N)
+Matome vidutinis laikas didėja tiesiškai. Priklausomybė tiesiška, kompleksiškumas O(N).
+
+!Priklausomybe
 
 ## Kolizija
 
