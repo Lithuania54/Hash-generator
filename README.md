@@ -35,3 +35,17 @@ Matome vidutinis laikas didėja tiesiškai. Priklausomybė tiesiška, kompleksi�
 **Total collisions found:** `0`
 
 **Collision rate:** `0%`
+
+## Lavina
+
+| Metric                          | Value       |
+|---------------------------------|-------------|
+| **Total string pairs processed**| `100,000`   |
+| **Bit-Level Percentage Differences** |         |
+| &nbsp;&nbsp;&nbsp;&nbsp;**Min** | `0 %`       |
+| &nbsp;&nbsp;&nbsp;&nbsp;**Max** | `83.9844 %` |
+| &nbsp;&nbsp;&nbsp;&nbsp;**Avg** | `63.8929 %` |
+| **Hex-Level Percentage Differences** |         |
+| &nbsp;&nbsp;&nbsp;&nbsp;**Min** | `0 %`       |
+| &nbsp;&nbsp;&nbsp;&nbsp;**Max** | `100 %`     |
+| &nbsp;&nbsp;&nbsp;&nbsp;**Avg** | `90.3923 %` |
