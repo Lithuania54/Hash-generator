@@ -42,10 +42,23 @@ Matome vidutinis laikas didėja tiesiškai. Priklausomybė tiesiška, kompleksi�
 |---------------------------------|-------------|
 | **Total string pairs processed**| `100,000`   |
 | **Bit-Level Percentage Differences** |         |
-| &nbsp;&nbsp;&nbsp;&nbsp;**Min** | `0 %`       |
+| &nbsp;&nbsp;&nbsp;&nbsp;**Min** | `41.4062 %` |
 | &nbsp;&nbsp;&nbsp;&nbsp;**Max** | `83.9844 %` |
 | &nbsp;&nbsp;&nbsp;&nbsp;**Avg** | `63.8929 %` |
 | **Hex-Level Percentage Differences** |         |
-| &nbsp;&nbsp;&nbsp;&nbsp;**Min** | `0 %`       |
+| &nbsp;&nbsp;&nbsp;&nbsp;**Min** | `65.625 %`  |
 | &nbsp;&nbsp;&nbsp;&nbsp;**Max** | `100 %`     |
 | &nbsp;&nbsp;&nbsp;&nbsp;**Avg** | `90.3923 %` |
+
+## Išvados
+
+### Stiprybės
+- **Efektyvumas:** Hash funkcija yra efektyvi, vidutinis laikas didėja O(n).
+- **Kolizijų nebuvimas:** Patikrinus 100,000 string porų, nebuvo rasta nė vienos kolizijos.
+- **Lavinos efektas:** Bitų ir heksadecimalių lygių skirtumai rodo stiprų lavinos efektą.
+
+### Trūkumai
+- **Bitų lygio skirtumai:** Minimali bitų lygio skirtumo reikšmė yra 41.4062 %, kas gali būti trūkumas.
+- **Heksadecimalių lygio skirtumai:** Minimali heksadecimalių lygio skirtumo reikšmė yra 65.625 %, kas gali būti trūkumas.
+
+Apibendrinant, hash funkcija yra efektyvi ir patikima, tačiau galima patobulinti bitų ir heksadecimalių lygio skirtumus.

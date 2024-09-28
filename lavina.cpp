@@ -9,7 +9,7 @@ string Hex(unsigned long long num) {
     while (num > 0) {
         result = hexGalimi[num & 15] + result;
         num >>= 4;
-    };
+    }
 
     return result;
 }
@@ -88,8 +88,10 @@ int main() {
     int totalPairs = stringPairs.size();
     double totalBitPercentage = 0.0;
     double totalHexPercentage = 0.0;
-    double minBitPercentage = 100.0, maxBitPercentage = 0.0;
-    double minHexPercentage = 100.0, maxHexPercentage = 0.0;
+    double minBitPercentage = std::numeric_limits<double>::max();
+    double maxBitPercentage = 0.0;
+    double minHexPercentage = std::numeric_limits<double>::max();
+    double maxHexPercentage = 0.0;
 
     const int totalBits = 256;
     const int totalHexChars = 64;
@@ -107,24 +109,28 @@ int main() {
         totalBitPercentage += bitPercentage;
         totalHexPercentage += hexPercentage;
 
-        minBitPercentage = min(minBitPercentage, bitPercentage);
-        maxBitPercentage = max(maxBitPercentage, bitPercentage);
-        minHexPercentage = min(minHexPercentage, hexPercentage);
-        maxHexPercentage = max(maxHexPercentage, hexPercentage);
+        if (bitPercentage > 0) {
+            minBitPercentage = min(minBitPercentage, bitPercentage);
+            maxBitPercentage = max(maxBitPercentage, bitPercentage);
+        }
+        if (hexPercentage > 0) {
+            minHexPercentage = min(minHexPercentage, hexPercentage);
+            maxHexPercentage = max(maxHexPercentage, hexPercentage);
+        }
     }
 
     double avgBitPercentage = totalBitPercentage / totalPairs;
     double avgHexPercentage = totalHexPercentage / totalPairs;
 
     cout << "Total string pairs processed: " << totalPairs << endl;
-    
+
     cout << "Bit-Level Percentage Differences:" << endl;
-    cout << "  Min: " << minBitPercentage << " %" << endl;
+    cout << "  Min: " << (minBitPercentage == std::numeric_limits<double>::max() ? 0.0 : minBitPercentage) << " %" << endl; // Handle case where min is not updated
     cout << "  Max: " << maxBitPercentage << " %" << endl;
     cout << "  Avg: " << avgBitPercentage << " %" << endl;
 
     cout << "Hex-Level Percentage Differences:" << endl;
-    cout << "  Min: " << minHexPercentage << " %" << endl;
+    cout << "  Min: " << (minHexPercentage == std::numeric_limits<double>::max() ? 0.0 : minHexPercentage) << " %" << endl; // Handle case where min is not updated
     cout << "  Max: " << maxHexPercentage << " %" << endl;
     cout << "  Avg: " << avgHexPercentage << " %" << endl;
 
