@@ -1,15 +1,17 @@
 #include <bits/stdc++.h>
-#include <string>
 using namespace std;
+namespace fs = std::filesystem;
 
 string Hex(unsigned long long num) {
     const string hexGalimi = "0123456789abcdef";
     string result;
 
+    if (num == 0) return "0";
+
     while (num > 0) {
         result = hexGalimi[num & 15] + result;
         num >>= 4;
-    };
+    }
 
     return result;
 }
@@ -34,12 +36,32 @@ string hashFunkcija(const string& input) {
     return resultHex.substr(0, 64);
 }
 
-int main() {
-    string input;
-    cout << "Input: ";
-    getline(cin, input);
+string readFileContent(const string& filePath) {
+    ifstream file(filePath);
+    if (!file.is_open()) {
+        cerr << "Failed to open file: " << filePath << endl;
+        return "";
+    }
 
-    cout << "Hash: " << hashFunkcija(input) << endl;
+    string content((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
+    file.close();
+    return content;
+}
+
+int main() {
+    string folderPath = "test_files";
+
+    for (const auto& entry : fs::directory_iterator(folderPath)) {
+        string filePath = entry.path().string();
+
+        cout << "Processing file: " << filePath << endl;
+
+        string fileContent = readFileContent(filePath);
+
+        string hashValue = hashFunkcija(fileContent);
+
+        cout << "Hash: " << hashValue << endl;
+    }
 
     return 0;
 }

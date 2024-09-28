@@ -1,5 +1,6 @@
 # Ignore main.exe
 main.exe
+a.py
 
 # Ignore the .vscode folder
 .vscode/
