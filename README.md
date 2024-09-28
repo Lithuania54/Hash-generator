@@ -1,5 +1,35 @@
 # Hash-generator
 
+## Pseudo-kodas
+
+### Funkcija Hex(num)
+    Inicializuoti hexGalimi su "0123456789abcdef"
+    Inicializuoti result kaip tuščią eilutę
+
+    Kol num didesnis už 0:
+        result = hexGalimi[num & 15] + result
+        num = num >> 4
+
+    Grąžinti result
+
+### Funkcija hashFunkcija(input)
+    Inicializuoti hash su 0
+    Inicializuoti prime su 31
+
+    Kiekvienam simboliui c iš input:
+        hash = hash * prime + c * (c + 7) + 12345
+
+    Inicializuoti resultHex su Hex(hash)
+
+    Kol resultHex ilgis mažesnis nei 64:
+        Kiekvienam simboliui c iš resultHex:
+            hash = hash * prime + c * (c + 5) + 54321
+        resultHex = resultHex + Hex(hash)
+
+    Grąžinti resultHex nuo 0 iki 64 simbolių
+
+## Tyrimai
+
 | Failo pavadinimas          | Hash (64 simbolių hex)                                                      |
 |----------------------------|-----------------------------------------------------------------------------|
 | test_files\file1.txt       | 6e22e28a55b90e80341940122402beb422bf3570a8116c7e8c1b647554fa8b88            |
