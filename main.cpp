@@ -1,5 +1,6 @@
 #include <bits/stdc++.h>
 #include <string>
+#include <fstream>
 using namespace std;
 
 string Hex(unsigned long long num) {
@@ -36,8 +37,36 @@ string hashFunkcija(const string& input) {
 
 int main() {
     string input;
-    cout << "Input: ";
-    getline(cin, input);
+    int choice;
+
+    cout << "Choose input method:\n";
+    cout << "1. Ranka\n";
+    cout << "2. Is failo\n";
+    cout << "Choice: ";
+    cin >> choice;
+    cin.ignore();
+
+    if (choice == 1) {
+        cout << "Input: ";
+        getline(cin, input);
+    } else if (choice == 2) {
+        string filename;
+        cout << "Enter filename (in test_files folder): ";
+        cin >> filename;
+        ifstream file("test_files/" + filename);
+        if (file.is_open()) {
+            stringstream buffer;
+            buffer << file.rdbuf();
+            input = buffer.str();
+            file.close();
+        } else {
+            cerr << "Error: Could not open file." << endl;
+            return 1;
+        }
+    } else {
+        cerr << "Invalid choice." << endl;
+        return 1;
+    }
 
     cout << "Hash: " << hashFunkcija(input) << endl;
 
