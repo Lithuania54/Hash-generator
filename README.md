@@ -28,3 +28,10 @@
 
 Matome vidutinis laikas didėja tiesiškai. Priklausomybė tiesiška, kompleksiškumas O(N)
 
+## Kolizija
+
+**Total string pairs checked:** `100,000`
+
+**Total collisions found:** `0`
+
+**Collision rate:** `0%`

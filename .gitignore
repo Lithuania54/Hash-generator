@@ -3,6 +3,7 @@ main.exe
 a.py
 konstitucija.exe
 deterministine.exe
+kolizija.exe
 
 # Ignore the .vscode folder
 .vscode/
