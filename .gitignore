@@ -1,6 +1,8 @@
 # Ignore main.exe
 main.exe
 a.py
+konstitucija.exe
+deterministine.exe
 
 # Ignore the .vscode folder
 .vscode/
