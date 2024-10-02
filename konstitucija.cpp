@@ -37,21 +37,15 @@ string hashFunkcija(const string& input) {
     return resultHex.substr(0, 64);
 }
 
-string readLines(const string& filePath, int numLines) {
-    ifstream file(filePath);
-    if (!file.is_open()) {
-        cerr << "Failed to open file: " << filePath << endl;
-        return "";
-    }
-
+string readLines(ifstream& file, int numLines) {
     string line, content;
     int lineCount = 0;
+
     while (getline(file, line) && lineCount < numLines) {
         content += line + "\n";
         lineCount++;
     }
 
-    file.close();
     return content;
 }
 
@@ -59,16 +53,24 @@ void Performance(const string& filePath) {
     vector<int> lineCounts = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512};
     const int numExperiments = 5;
 
+    ifstream file(filePath);
+    if (!file.is_open()) {
+        cerr << "Failed to open file: " << filePath << endl;
+        return;
+    }
+
     for (int numLines : lineCounts) {
         double totalTime = 0.0;
+        file.clear();
+        file.seekg(0, ios::beg);
 
         for (int i = 0; i < numExperiments; ++i) {
-            string inputData = readLines(filePath, numLines);
-            
+            string inputData = readLines(file, numLines);
+
             auto start = chrono::high_resolution_clock::now();
             string hashValue = hashFunkcija(inputData);
             auto end = chrono::high_resolution_clock::now();
-            
+
             chrono::duration<double, milli> elapsedTime = end - start;
             totalTime += elapsedTime.count();
         }
@@ -76,6 +78,8 @@ void Performance(const string& filePath) {
         double averageTime = totalTime / numExperiments;
         cout << "Average time for " << numLines << " lines: " << averageTime << " ms" << endl;
     }
+
+    file.close();
 }
 
 int main() {
