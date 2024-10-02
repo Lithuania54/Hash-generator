@@ -58,7 +58,7 @@
 
 Matome vidutinis laikas didėja tiesiškai. Priklausomybė tiesiška, kompleksiškumas O(N).
 
-!Priklausomybe
+![image](./test_files/Priklausomybė.png)
 
 ## Kolizija
 
