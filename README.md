@@ -56,7 +56,7 @@
 | 256              | 0.0765                |
 | 512              | 0.08395               |
 
-Matome vidutinis laikas didėja tiesiškai. Priklausomybė tiesiška, kompleksiškumas O(N).
+Matome, kad vidutinis laikas didėja logaritmiškai. Priklausomybė yra logaritminė, kompleksiškumas O(log N).
 
 ![image](./test_files/Paveikslas.png)
 
