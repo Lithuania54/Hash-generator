@@ -85,7 +85,7 @@ Matome, kad vidutinis laikas didėja logaritmiškai. Priklausomybė yra logaritm
 ## Išvados
 
 ### Stiprybės
-- **Efektyvumas:** Hash funkcija yra efektyvi, vidutinis laikas didėja O(n).
+- **Efektyvumas:** Hash funkcija yra efektyvi, vidutinis laikas didėja O(log n).
 - **Kolizijų nebuvimas:** Patikrinus 100,000 string porų, nebuvo rasta nė vienos kolizijos.
 - **Lavinos efektas:** Bitų ir heksadecimalių lygių skirtumai rodo stiprų lavinos efektą.
 

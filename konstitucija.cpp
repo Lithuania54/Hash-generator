@@ -50,7 +50,7 @@ string readLines(ifstream& file, int numLines) {
 }
 
 void Performance(const string& filePath) {
-    vector<int> lineCounts = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512};
+    vector<int> lineCounts = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048};
     const int numExperiments = 5;
 
     ifstream file(filePath);
