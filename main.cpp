@@ -15,40 +15,60 @@ struct Block {
     string previous_block_hash;
     vector<Transaction> transactions;
     string block_hash;
+    int nonce;
+
+    Block(string previousHash, vector<Transaction> trans) 
+        : previous_block_hash(previousHash), transactions(trans), nonce(0) {}
 };
 
+// Optimized Hex function
 string Hex(unsigned long long num) {
-    const string hexGalimi = "0123456789abcdef";
-    string result;
-    do {
-        result = hexGalimi[num & 15] + result;
+    const string hexChars = "0123456789abcdef";
+    string result(16, '0');
+    for (int i = 15; i >= 0; --i) {
+        result[i] = hexChars[num & 0xf];
         num >>= 4;
-    } while (num > 0);
+    }
     return result;
 }
 
+// Optimized hash function
 string hashFunkcija(const string& data) {
-    unsigned long long hash = 0;
-    const unsigned long long prime = 31;
+    unsigned long long hash = 0xcbf29ce484222325; // FNV offset basis
+    const unsigned long long prime = 0x100000001b3; // FNV prime
     for (char c : data) {
-        hash = hash * prime + c * (c + 7) + 12345;
+        hash ^= (c + 7);  // Slightly modified hash operations
+        hash *= prime;
     }
     string resultHex = Hex(hash);
-    while (resultHex.length() < 64) {
-        for (char c : resultHex) {
-            hash = hash * prime + c * (c + 5) + 54321;
-        }
-        resultHex += Hex(hash);
-    }
+    
+    // Expand or trim to ensure 64 characters
+    while (resultHex.size() < 64) resultHex += resultHex;
     return resultHex.substr(0, 64);
 }
 
-vector<Transaction> selectRandomTransactions(const vector<Transaction>& transactions, int count) {
-    vector<Transaction> temp_transactions = transactions;
-    shuffle(temp_transactions.begin(), temp_transactions.end(), std::mt19937(std::random_device()()));
-    return vector<Transaction>(temp_transactions.begin(), temp_transactions.begin() + min(count, static_cast<int>(temp_transactions.size())));
+// Function to mine a block with custom hash function
+string mineBlock(Block& block, int difficulty) {
+    string target(difficulty, '0');
+    string baseData = block.previous_block_hash;
+    for (const auto& transaction : block.transactions) {
+        baseData += transaction.transaction_id + transaction.sender + transaction.receiver + to_string(transaction.amount);
+    }
+
+    while (true) {
+        string data = baseData + to_string(block.nonce);
+        block.block_hash = hashFunkcija(data);
+        
+        if (block.block_hash.substr(0, difficulty) == target) {
+            cout << "Block mined! Nonce: " << block.nonce << ", Hash: " << block.block_hash << endl;
+            return block.block_hash;
+        }
+        
+        block.nonce++;
+    }
 }
 
+// Function to load transactions from a file
 vector<Transaction> loadTransactions(const string& filename) {
     vector<Transaction> transactions;
     ifstream file(filename);
@@ -66,7 +86,7 @@ vector<Transaction> loadTransactions(const string& filename) {
 
         getline(iss, temp, ':');
         getline(iss, tx.transaction_id, ',');
-        
+
         getline(iss, temp, ':');
         getline(iss, tx.sender, ',');
 
@@ -78,45 +98,26 @@ vector<Transaction> loadTransactions(const string& filename) {
 
         transactions.push_back(tx);
     }
+    file.close();
     return transactions;
 }
 
-Block createBlock(const vector<Transaction>& transactions, const string& previous_block_hash) {
-    Block block;
-    block.previous_block_hash = previous_block_hash;
-    block.transactions = selectRandomTransactions(transactions, 100);
-
-    string combined_data = previous_block_hash;
-    for (const auto& tx : block.transactions) {
-        combined_data += tx.transaction_id;
-    }
-    block.block_hash = hashFunkcija(combined_data);
-    return block;
-}
-
 int main() {
-    srand(static_cast<unsigned int>(time(0)));  // Seed randomness once here
+    int difficulty = 1;
+    string previous_block_hash = "0";
 
     vector<Transaction> transactions = loadTransactions("failai/transakcijos.txt");
 
-    if (transactions.size() < 100) {
-        cerr << "Not enough transactions to create a block." << endl;
+    if (transactions.empty()) {
+        cerr << "No transactions loaded. Exiting program." << endl;
         return 1;
     }
 
-    string previous_block_hash = "00000000000000000000000000000000";
-    Block new_block = createBlock(transactions, previous_block_hash);
+    cout << "Loaded " << transactions.size() << " transactions." << endl;
 
-    cout << "New Block Created:\n";
-    cout << "Previous Block Hash: " << new_block.previous_block_hash << "\n";
-    cout << "Block Hash: " << new_block.block_hash << "\n";
-    cout << "Transactions:\n";
-    for (const auto& tx : new_block.transactions) {
-        cout << "    Transaction ID: " << tx.transaction_id
-             << ", Sender: " << tx.sender
-             << ", Receiver: " << tx.receiver
-             << ", Amount: " << tx.amount << "\n";
-    }
+    Block newBlock(previous_block_hash, transactions);
+
+    mineBlock(newBlock, difficulty);
 
     return 0;
 }
