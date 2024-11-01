@@ -21,7 +21,6 @@ struct Block {
         : previous_block_hash(previousHash), transactions(trans), nonce(0) {}
 };
 
-// Optimized Hex function
 string Hex(unsigned long long num) {
     const string hexChars = "0123456789abcdef";
     string result(16, '0');
@@ -32,22 +31,19 @@ string Hex(unsigned long long num) {
     return result;
 }
 
-// Optimized hash function
 string hashFunkcija(const string& data) {
-    unsigned long long hash = 0xcbf29ce484222325; // FNV offset basis
-    const unsigned long long prime = 0x100000001b3; // FNV prime
+    unsigned long long hash = 0xcbf29ce484222325;
+    const unsigned long long prime = 0x100000001b3;
     for (char c : data) {
-        hash ^= (c + 7);  // Slightly modified hash operations
+        hash ^= (c + 7);
         hash *= prime;
     }
     string resultHex = Hex(hash);
     
-    // Expand or trim to ensure 64 characters
     while (resultHex.size() < 64) resultHex += resultHex;
     return resultHex.substr(0, 64);
 }
 
-// Function to mine a block with custom hash function
 string mineBlock(Block& block, int difficulty) {
     string target(difficulty, '0');
     string baseData = block.previous_block_hash;
@@ -68,7 +64,6 @@ string mineBlock(Block& block, int difficulty) {
     }
 }
 
-// Function to load transactions from a file
 vector<Transaction> loadTransactions(const string& filename) {
     vector<Transaction> transactions;
     ifstream file(filename);
