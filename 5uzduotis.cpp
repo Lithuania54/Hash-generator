@@ -1,205 +1,297 @@
-#include <iostream>
+#include <bits/stdc++.h>
 #include <fstream>
-#include <vector>
-#include <string>
-#include <ctime>
-#include <cstdlib>
-#include <unordered_map>
-#include <sstream>
+#include <random>
 
-std::string Hex(unsigned long long num) {
-    const std::string hexChars = "0123456789abcdef";
-    std::string result(16, '0');
-    for (int i = 15; i >= 0; --i) {
-        result[i] = hexChars[num & 0xf];
-        num >>= 4;
-    }
+using namespace std;
+
+string Hex(unsigned long long num)
+{
+    const string hexChars = "0123456789abcdef";
+    string result;
+    for (int i = 0; i < 16; ++i, num >>= 4)
+        result.insert(result.begin(), hexChars[num & 0xf]);
     return result;
 }
 
-std::string hashFunkcija(const std::string& data) {
+string hashFunction(const string &data)
+{
     unsigned long long hash = 0xcbf29ce484222325;
     const unsigned long long prime = 0x100000001b3;
-    for (char c : data) {
-        hash ^= (c + 7);
-        hash *= prime;
-    }
-    std::string resultHex = Hex(hash);
-    while (resultHex.size() < 64) resultHex += resultHex;
-    return resultHex.substr(0, 64);
+    for (char c : data)
+        hash = (hash ^ (c + 7)) * prime;
+    string resultHex = Hex(hash);
+    return resultHex.size() < 64 ? resultHex + resultHex.substr(0, 64 - resultHex.size()) : resultHex;
 }
 
-struct User {
-    std::string publicKey;
+struct User
+{
+    string publicKey;
     unsigned long long balance;
 };
 
-struct Transaction {
-    std::string transactionID;
-    std::string sender;
-    std::string receiver;
+struct Transaction
+{
+    string transactionID, sender, receiver;
     unsigned int amount;
 };
 
-std::unordered_map<std::string, User> loadUsers(const std::string& filename) {
-    std::unordered_map<std::string, User> users;
-    std::ifstream file(filename);
-    if (!file.is_open()) {
-        std::cerr << "Unable to open file " << filename << std::endl;
+unordered_map<string, User> loadUsers(const string &filename)
+{
+    unordered_map<string, User> users;
+    ifstream file(filename);
+    if (!file)
         return users;
-    }
-    
-    std::string line;
-    while (std::getline(file, line)) {
-        User user;
-        std::istringstream iss(line);
-        
-        std::string temp;
-        std::getline(iss, temp, ':');
-        std::getline(iss, temp, ':');
-        iss >> user.publicKey;
-        std::getline(iss, temp, ':');
-        iss >> user.balance;
 
+    string line, temp;
+    while (getline(file, line))
+    {
+        istringstream iss(line);
+        User user;
+        getline(iss, temp, ':');
+        getline(iss, temp, ':');
+        iss >> user.publicKey;
+        getline(iss, temp, ':');
+        iss >> user.balance;
         users[user.publicKey] = user;
     }
-    file.close();
     return users;
 }
 
-std::vector<Transaction> loadTransactions(const std::string& filename) {
-    std::vector<Transaction> transactions;
-    std::ifstream file(filename);
-    if (!file.is_open()) {
-        std::cerr << "Unable to open file " << filename << std::endl;
+vector<Transaction> loadTransactions(const string &filename)
+{
+    vector<Transaction> transactions;
+    ifstream file(filename);
+    if (!file)
         return transactions;
-    }
-    
-    std::string line;
-    while (std::getline(file, line)) {
-        Transaction tx;
-        std::istringstream iss(line);
-        
-        std::string temp;
-        std::getline(iss, temp, ':');
-        iss >> tx.transactionID;
-        std::getline(iss, temp, ':');
-        iss >> tx.sender;
-        std::getline(iss, temp, ':');
-        iss >> tx.receiver;
-        std::getline(iss, temp, ':');
-        iss >> tx.amount;
 
+    string line, temp;
+    while (getline(file, line))
+    {
+        Transaction tx;
+        istringstream iss(line);
+        getline(iss, temp, ':');
+        iss >> tx.transactionID;
+        getline(iss, temp, ':');
+        iss >> tx.sender;
+        getline(iss, temp, ':');
+        iss >> tx.receiver;
+        getline(iss, temp, ':');
+        iss >> tx.amount;
         transactions.push_back(tx);
     }
-    file.close();
     return transactions;
 }
 
-std::vector<Transaction> selectRandomTransactions(std::vector<Transaction>& transactions, int num = 100) {
-    std::vector<Transaction> selected;
-    std::srand(static_cast<unsigned int>(std::time(0)));
-    for (int i = 0; i < num && !transactions.empty(); ++i) {
-        int index = std::rand() % transactions.size();
+vector<Transaction> selectRandomTransactions(vector<Transaction> &transactions, int num = 100)
+{
+    vector<Transaction> selected;
+    srand(static_cast<unsigned int>(time(0)));
+    for (int i = 0; i < num && !transactions.empty(); i++)
+    {
+        int index = rand() % transactions.size();
         selected.push_back(transactions[index]);
         transactions.erase(transactions.begin() + index);
     }
     return selected;
 }
 
-struct Block {
-    std::string prevBlockHash;
-    std::string timestamp;
-    std::string version;
-    std::string merkleRootHash;
-    std::string nonce;
-    std::string difficultyTarget;
-    std::vector<Transaction> transactions;
+struct Block
+{
+    string prevBlockHash, timestamp, version = "v0.1", merkleRootHash, nonce = "0", difficultyTarget = "0";
+    vector<Transaction> transactions;
 };
 
-std::string getCurrentTimestamp() {
-    std::time_t now = std::time(nullptr);
-    return std::to_string(now);
+string getCurrentTimestamp()
+{
+    return to_string(time(nullptr));
 }
 
-std::string calculateMerkleRootHash(const std::vector<Transaction>& transactions) {
-    std::string concatenatedHashes;
-    for (const auto& tx : transactions) {
+string calculateMerkleRootHash(const vector<Transaction> &transactions)
+{
+    string concatenatedHashes;
+    for (const auto &tx : transactions)
         concatenatedHashes += tx.transactionID;
-    }
-    return hashFunkcija(concatenatedHashes);
+    return hashFunction(concatenatedHashes);
 }
 
-Block createBlock(const std::string& prevBlockHash, const std::vector<Transaction>& transactions) {
-    Block newBlock;
-    newBlock.prevBlockHash = prevBlockHash;
-    newBlock.timestamp = getCurrentTimestamp();
-    newBlock.version = "v0.1";
+Block createBlock(const string &prevBlockHash, const vector<Transaction> &transactions)
+{
+    Block newBlock{prevBlockHash, getCurrentTimestamp()};
     newBlock.merkleRootHash = calculateMerkleRootHash(transactions);
-    newBlock.difficultyTarget = "0";
-    newBlock.nonce = "0";
     newBlock.transactions = transactions;
-    
     return newBlock;
 }
 
-std::string mineBlock(Block& block) {
+string mineBlock(Block &block)
+{
     unsigned long long nonce = 0;
-    std::string hash;
-    do {
-        block.nonce = std::to_string(nonce);
-        std::string headerData = block.prevBlockHash + block.timestamp + block.version + block.merkleRootHash + block.nonce + block.difficultyTarget;
-        hash = hashFunkcija(headerData);
-        nonce++;
+    string hash;
+    do
+    {
+        block.nonce = to_string(nonce++);
+        hash = hashFunction(block.prevBlockHash + block.timestamp + block.version +
+                            block.merkleRootHash + block.nonce + block.difficultyTarget);
     } while (hash.substr(0, block.difficultyTarget.length()) != block.difficultyTarget);
-
     return hash;
 }
 
-void applyTransactions(const std::vector<Transaction>& transactions, std::unordered_map<std::string, User>& users) {
-    for (const auto& tx : transactions) {
-        if (users[tx.sender].balance >= tx.amount) {
+void applyTransactions(const vector<Transaction> &transactions, unordered_map<string, User> &users)
+{
+    for (const auto &tx : transactions)
+    {
+        if (users[tx.sender].balance >= tx.amount)
+        {
             users[tx.sender].balance -= tx.amount;
             users[tx.receiver].balance += tx.amount;
-        } else {
-            std::cerr << "Insufficient balance for transaction: " << tx.transactionID << std::endl;
+        }
+        else
+        {
+            cerr << "Insufficient balance for transaction: " << tx.transactionID << endl;
         }
     }
 }
 
-int main() {
-    std::unordered_map<std::string, User> users = loadUsers("failai/vartotojai.txt");
-    if (users.empty()) {
-        std::cerr << "No users loaded." << std::endl;
-        return 1;
+void printTransaction(const Transaction &tx, ostream &out = cout)
+{
+    out << "Transaction ID: " << tx.transactionID << "\nSender: " << tx.sender
+        << "\nReceiver: " << tx.receiver << "\nAmount: " << tx.amount << "\n-----------------------------\n";
+}
+
+void printBlock(const Block &block, const string &blockHash, int blockCount, ostream &out = cout)
+{
+    out << "Block " << blockCount << " Mined Successfully!\nBlock Hash: " << blockHash
+        << "\nPrev Block Hash: " << block.prevBlockHash << "\nTimestamp: " << block.timestamp
+        << "\nMerkle Root Hash: " << block.merkleRootHash << "\nNonce: " << block.nonce
+        << "\nDifficulty Target: " << block.difficultyTarget
+        << "\nTransactions in Block: " << block.transactions.size() << "\n\nTransactions:\n";
+    for (const auto &tx : block.transactions)
+        printTransaction(tx, out);
+    out << "=============================\n";
+}
+
+void saveBlockDetails(const Block &block, const string &blockHash, int blockCount)
+{
+    ofstream file("failai/mined_blocks.txt", ios_base::app);
+    if (file)
+        printBlock(block, blockHash, blockCount, file);
+    else
+        cerr << "Unable to open file failai/mined_blocks.txt for saving.\n";
+}
+
+void printAllTransactions(const vector<Transaction> &transactions)
+{
+    for (const auto &tx : transactions)
+    {
+        printTransaction(tx);
     }
+}
 
-    std::vector<Transaction> transactions = loadTransactions("failai/transakcijos.txt");
-    if (transactions.empty()) {
-        std::cerr << "No transactions loaded." << std::endl;
-        return 1;
-    }
+vector<Block> createBlockchain(const vector<Transaction> &transactions, unordered_map<string, User> &users)
+{
+    vector<Block> blockchain;
+    string prevBlockHash = "0000000000000000000";
+    vector<Transaction> remainingTransactions = transactions;
+    int blockCount = 0;
 
-    std::string prevBlockHash = "0000000000000000000";
-    while (!transactions.empty()) {
-        std::vector<Transaction> selectedTransactions = selectRandomTransactions(transactions);
-
+    while (!remainingTransactions.empty())
+    {
+        auto selectedTransactions = selectRandomTransactions(remainingTransactions);
         Block newBlock = createBlock(prevBlockHash, selectedTransactions);
-
-        std::string blockHash = mineBlock(newBlock);
+        string blockHash = mineBlock(newBlock);
         prevBlockHash = blockHash;
 
         applyTransactions(selectedTransactions, users);
-
-        std::cout << "New Block Mined Successfully!" << std::endl;
-        std::cout << "Block Hash: " << blockHash << std::endl;
-        std::cout << "Prev Block Hash: " << newBlock.prevBlockHash << std::endl;
-        std::cout << "Timestamp: " << newBlock.timestamp << std::endl;
-        std::cout << "Merkle Root Hash: " << newBlock.merkleRootHash << std::endl;
-        std::cout << "Nonce: " << newBlock.nonce << std::endl;
-        std::cout << "Difficulty Target: " << newBlock.difficultyTarget << std::endl;
-        std::cout << "Transactions in Block: " << newBlock.transactions.size() << std::endl;
+        blockchain.push_back(newBlock);
+        saveBlockDetails(newBlock, blockHash, ++blockCount);
     }
+    return blockchain;
+}
 
+int main()
+{
+    auto users = loadUsers("failai/vartotojai.txt");
+    if (users.empty())
+        return cerr << "No users loaded.\n", 1;
+
+    auto transactions = loadTransactions("failai/transakcijos.txt");
+    if (transactions.empty())
+        return cerr << "No transactions loaded.\n", 1;
+
+    string input;
+    cout << "Do you want to print transactions or blocks? (Enter 'transactions' or 'blocks'): ";
+    cin >> input;
+
+    if (input == "transactions")
+    {
+        cout << "Do you want to print 'all' transactions or a 'specific' one? ";
+        cin >> input;
+
+        if (input == "all")
+        {
+            printAllTransactions(transactions);
+        }
+        else if (input == "specific")
+        {
+            cout << "Enter the transaction ID: ";
+            string txID;
+            cin >> txID;
+            bool found = false;
+            for (const auto &tx : transactions)
+            {
+                if (tx.transactionID == txID)
+                {
+                    printTransaction(tx);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+                cout << "Transaction with ID " << txID << " not found.\n";
+        }
+        else
+        {
+            cout << "Invalid input.\n";
+        }
+    }
+    else if (input == "blocks")
+    {
+        cout << "Generating blockchain...\n";
+        vector<Block> blockchain = createBlockchain(transactions, users);
+
+        cout << "Do you want to print 'all' blocks or a 'specific' one? ";
+        cin >> input;
+
+        if (input == "all")
+        {
+            for (size_t i = 0; i < blockchain.size(); i++)
+            {
+                string blockHash = mineBlock(const_cast<Block &>(blockchain[i]));
+                printBlock(blockchain[i], blockHash, i + 1);
+            }
+        }
+        else if (input == "specific")
+        {
+            cout << "Enter the block index: ";
+            int index;
+            cin >> index;
+            if (index < 0 || index >= blockchain.size())
+            {
+                cout << "Block with index " << index << " not found.\n";
+            }
+            else
+            {
+                string blockHash = mineBlock(const_cast<Block &>(blockchain[index]));
+                printBlock(blockchain[index], blockHash, index + 1);
+            }
+        }
+        else
+        {
+            cout << "Invalid input.\n";
+        }
+    }
+    else
+    {
+        cout << "Invalid choice.\n";
+    }
     return 0;
 }
