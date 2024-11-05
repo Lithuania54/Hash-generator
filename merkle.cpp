@@ -210,6 +210,47 @@ void printAllTransactions(const vector<Transaction> &transactions)
     }
 }
 
+Block mineWithCandidates(const string &prevBlockHash, vector<Transaction> &transactions)
+{
+    const int numCandidates = 5;
+    const int transactionsPerCandidate = 100;
+    const int maxAttempts = 100000;
+    const auto maxTime = chrono::seconds(5);
+
+    vector<Block> candidates;
+    
+    for (int i = 0; i < numCandidates; ++i)
+    {
+        auto selectedTransactions = selectRandomTransactions(transactions, transactionsPerCandidate);
+        candidates.push_back(createBlock(prevBlockHash, selectedTransactions));
+    }
+
+    unsigned long long attemptCount;
+    while (true)
+    {
+        for (auto &candidate : candidates)
+        {
+            auto startTime = chrono::steady_clock::now();
+            attemptCount = 0;
+
+            while (chrono::steady_clock::now() - startTime < maxTime && attemptCount < maxAttempts)
+            {
+                candidate.nonce = to_string(attemptCount++);
+                string hash = hashFunction(candidate.prevBlockHash + candidate.timestamp + candidate.version +
+                                           candidate.merkleRootHash + candidate.nonce + candidate.difficultyTarget);
+
+                if (hash.substr(0, candidate.difficultyTarget.length()) == candidate.difficultyTarget)
+                {
+                    cout << "Successfully mined a block!" << endl;
+                    return candidate;
+                }
+            }
+        }
+
+        cout << "No block mined in this round. Extending time and attempts." << endl;
+    }
+}
+
 vector<Block> createBlockchain(const vector<Transaction> &transactions, unordered_map<string, User> &users)
 {
     vector<Block> blockchain;
@@ -219,14 +260,15 @@ vector<Block> createBlockchain(const vector<Transaction> &transactions, unordere
 
     while (!remainingTransactions.empty())
     {
-        auto selectedTransactions = selectRandomTransactions(remainingTransactions);
-        Block newBlock = createBlock(prevBlockHash, selectedTransactions);
-        string blockHash = mineBlock(newBlock);
-        prevBlockHash = blockHash;
+        // Mine a block with candidate-based mining
+        Block minedBlock = mineWithCandidates(prevBlockHash, remainingTransactions);
+        string blockHash = hashFunction(minedBlock.prevBlockHash + minedBlock.timestamp + minedBlock.version +
+                                        minedBlock.merkleRootHash + minedBlock.nonce + minedBlock.difficultyTarget);
 
-        applyTransactions(selectedTransactions, users);
-        blockchain.push_back(newBlock);
-        saveBlockDetails(newBlock, blockHash, ++blockCount);
+        prevBlockHash = blockHash;
+        applyTransactions(minedBlock.transactions, users);
+        blockchain.push_back(minedBlock);
+        saveBlockDetails(minedBlock, blockHash, ++blockCount);
     }
     return blockchain;
 }
