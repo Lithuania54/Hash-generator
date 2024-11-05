@@ -155,6 +155,13 @@ void applyTransactions(const vector<Transaction> &transactions, unordered_map<st
 {
     for (const auto &tx : transactions)
     {
+        if (hashFunction(tx.sender + tx.receiver + to_string(tx.amount)) != tx.transactionID)
+        {
+            cerr << "Invalid transaction ID hash for transaction: " << tx.transactionID << endl;
+            continue;
+        }
+
+        // Balance check
         if (users[tx.sender].balance >= tx.amount)
         {
             users[tx.sender].balance -= tx.amount;
@@ -166,6 +173,7 @@ void applyTransactions(const vector<Transaction> &transactions, unordered_map<st
         }
     }
 }
+
 
 void printTransaction(const Transaction &tx, ostream &out = cout)
 {
